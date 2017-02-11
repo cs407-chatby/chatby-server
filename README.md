@@ -6,8 +6,8 @@ After cloning the repo:
 
 ```bash
 cd chatby-server
-python3 -m venv chatby_env
-source ./chatby_env/bin/activate
+python3 -m venv env
+source ./env/bin/activate
 ```
 
 ## Install dependencies
@@ -15,7 +15,6 @@ source ./chatby_env/bin/activate
 From the virtual environment:
 
 ```bash
-cd chatby
 pip install -r requirements.txt
 ```
 
