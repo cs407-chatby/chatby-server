@@ -1,6 +1,7 @@
 from api.models import UserProxy
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from api import serializers
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -23,6 +24,12 @@ class IsOwnerOrPostOrReadOnly(IsOwnerOrReadOnly):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
+    ordering_fields = ('id', 'username', 'email', 'first_name', 'last_name', 'date_joined')
+    search_fields = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    filter_fields = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    ordering = ('id',)
+
     queryset = UserProxy.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = (IsOwnerOrPostOrReadOnly,)
