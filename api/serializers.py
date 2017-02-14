@@ -1,10 +1,13 @@
-from django.contrib.auth.models import User
+from django.forms import forms
+from rest_framework.response import Response
+
+from api.models import UserProxy
 from rest_framework import serializers
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = User
+        model = UserProxy
         fields = (
             'url',
             'id',
@@ -17,7 +20,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'password',
         )
         extra_kwargs = {
-            'password': {'write_only': True},
+            'password': {'write_only': True, 'required': False},
             'id': {'read_only': True},
             'date_joined': {'read_only': True},
             'is_staff': {'read_only': True},
@@ -25,6 +28,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
-        user.set_password(validated_data['password'])
+        if 'password' in validated_data:
+            user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        user = super(UserSerializer, self).update(instance, validated_data)
+        if 'password' in validated_data:
+            user.set_password(validated_data['password'])
         user.save()
         return user
