@@ -1,4 +1,5 @@
 from django.forms import forms
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from api.models import UserProxy
@@ -37,5 +38,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user = super(UserSerializer, self).update(instance, validated_data)
         if 'password' in validated_data:
             user.set_password(validated_data['password'])
+            Token.objects.filter(user_id=user.id).delete()
         user.save()
         return user
