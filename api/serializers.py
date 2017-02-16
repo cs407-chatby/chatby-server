@@ -2,13 +2,13 @@ from django.forms import forms
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from api.models import UserProxy
+from api import models
 from rest_framework import serializers
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = UserProxy
+        model = models.UserProxy
         fields = (
             'url',
             'id',
@@ -25,6 +25,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'id': {'read_only': True},
             'date_joined': {'read_only': True},
             'is_staff': {'read_only': True},
+            'url': {'read_only': True},
         }
 
     def create(self, validated_data):
@@ -41,3 +42,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             Token.objects.filter(user_id=user.id).delete()
         user.save()
         return user
+
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Room
+        fields = '__all__'
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'url': {'read_only': True},
+        }

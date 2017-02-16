@@ -1,4 +1,4 @@
-from api.models import UserProxy
+from api import models
 from rest_framework import viewsets, permissions, filters
 from api import serializers
 from django_filters.rest_framework import DjangoFilterBackend
@@ -30,6 +30,18 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_fields = ('username', 'email', 'first_name', 'last_name', 'is_staff')
     ordering = ('id',)
 
-    queryset = UserProxy.objects.all()
+    queryset = models.UserProxy.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = (IsOwnerOrPostOrReadOnly,)
+
+
+class RoomViewSet(viewsets.ModelViewSet):
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
+    ordering_fields = ('id', 'expire_time', 'creation_time', 'name')
+    search_fields = ('id', 'name',)
+    filter_fields = ('id', 'name', 'creator', 'longitude', 'latitude')
+    ordering = ('id',)
+
+    queryset = models.Room.objects.all()
+    serializer_class = serializers.RoomSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
