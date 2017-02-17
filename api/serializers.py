@@ -1,16 +1,13 @@
-from django.forms import forms
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
 
 from api import models
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserProxy
         fields = (
-            'url',
             'id',
             'username',
             'email',
@@ -22,10 +19,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
-            'id': {'read_only': True},
             'date_joined': {'read_only': True},
             'is_staff': {'read_only': True},
-            'url': {'read_only': True},
         }
 
     def create(self, validated_data):
@@ -49,6 +44,16 @@ class RoomSerializer(serializers.ModelSerializer):
         model = models.Room
         fields = '__all__'
         extra_kwargs = {
-            'id': {'read_only': True},
-            'url': {'read_only': True},
+            'creation_time': {'read_only': True},
+            'created_by': {'read_only': True, 'default': serializers.CurrentUserDefault()}
+        }
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Message
+        fields = '__all__'
+        extra_kwargs = {
+            'creation_time': {'read_only': True},
+            'created_by': {'read_only': True, 'default': serializers.CurrentUserDefault()},
         }

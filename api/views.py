@@ -4,7 +4,7 @@ from api import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
+class IsOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -38,10 +38,22 @@ class UserViewSet(viewsets.ModelViewSet):
 class RoomViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
     ordering_fields = ('id', 'expire_time', 'creation_time', 'name')
-    search_fields = ('id', 'name',)
-    filter_fields = ('id', 'name', 'creator', 'longitude', 'latitude')
+    search_fields = ('name', 'created_by__username', 'created_by__first_name', 'created_by__last_name')
+    filter_fields = ('id', 'name', 'created_by', 'longitude', 'latitude')
     ordering = ('id',)
 
     queryset = models.Room.objects.all()
     serializer_class = serializers.RoomSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
+    ordering_fields = ('id', 'creation_time')
+    search_fields = ('content', 'created_by__username', 'created_by__first_name', 'created_by__last_name')
+    filter_fields = ('id', 'created_by', 'room')
+    ordering = ('creation_time',)
+
+    queryset = models.Message.objects.all()
+    serializer_class = serializers.MessageSerializer
     permission_classes = (IsOwnerOrReadOnly,)
