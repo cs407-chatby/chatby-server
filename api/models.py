@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.gis.db import models as gis_models
+from .distance_manager import WithDistanceManager
+
 
 class UserProxy(User):
     class Meta:
@@ -11,6 +12,7 @@ class UserProxy(User):
 
 
 class Room(models.Model):
+    objects = WithDistanceManager()
     name = models.CharField(max_length=200)
     created_by = models.ForeignKey(UserProxy, on_delete=models.CASCADE)
     creation_time = models.DateTimeField(auto_now_add=True)
@@ -19,7 +21,6 @@ class Room(models.Model):
     image_url = models.CharField(max_length=500, blank=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    # location = gis_models.PointField()
 
     def get_owner(self):
         return self.created_by

@@ -1,3 +1,5 @@
+from django.db.models import F
+
 from api import models
 from rest_framework import viewsets, permissions, filters
 from api import serializers
@@ -30,9 +32,26 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RoomViewSet(viewsets.ModelViewSet):
-    queryset = models.Room.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_fields = ('created_by', )
     serializer_class = serializers.RoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)
+
+    @staticmethod
+    def __as_float_or_none(value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+
+    def get_queryset(self):
+        objects = models.Room.objects
+        latitude = self.__as_float_or_none(self.request.query_params.get('my_lat', None))
+        longitude = self.__as_float_or_none(self.request.query_params.get('my_lon', None))
+        if latitude is not None and longitude is not None:
+            return objects.with_distance(latitude, longitude).filter(distance__lt=F('radius')).all()
+        else:
+            return objects.all()
 
 
 class MessageViewSet(viewsets.ModelViewSet):
