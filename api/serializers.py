@@ -4,11 +4,11 @@ from api import models
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.UserProxy
         fields = (
-            'id',
+            'url',
             'username',
             'email',
             'is_staff',
@@ -39,7 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class RoomSerializer(serializers.ModelSerializer):
+class RoomSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Room
         fields = '__all__'
@@ -49,11 +49,29 @@ class RoomSerializer(serializers.ModelSerializer):
         }
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class MessageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Message
         fields = '__all__'
         extra_kwargs = {
             'creation_time': {'read_only': True},
             'created_by': {'read_only': True, 'default': serializers.CurrentUserDefault()},
+        }
+
+
+class MembershipSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Membership
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
+        }
+
+
+class LikeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Like
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
         }

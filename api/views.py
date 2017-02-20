@@ -32,8 +32,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RoomViewSet(viewsets.ModelViewSet):
-    filter_backends = (DjangoFilterBackend, )
-    filter_fields = ('created_by', )
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('created_by',)
     serializer_class = serializers.RoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)
 
@@ -63,4 +63,22 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     queryset = models.Message.objects.all()
     serializer_class = serializers.MessageSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+
+class MembershipViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('user', 'room')
+
+    queryset = models.Membership.objects.all()
+    serializer_class = serializers.MembershipSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+
+class LikeViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('user', 'message')
+
+    queryset = models.Like.objects.all()
+    serializer_class = serializers.LikeSerializer
     permission_classes = (IsOwnerOrReadOnly,)
