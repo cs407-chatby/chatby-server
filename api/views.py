@@ -5,6 +5,8 @@ from rest_framework import viewsets, permissions, filters
 from api import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 
+from decimal import Decimal
+
 
 class IsOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
     def has_object_permission(self, request, view, obj):
@@ -46,7 +48,7 @@ class RoomViewSet(viewsets.ModelViewSet):
     @staticmethod
     def __as_float_or_none(value):
         try:
-            return float(value)
+            return float(round(Decimal(value), 5))
         except (ValueError, TypeError):
             return None
 
