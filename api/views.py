@@ -30,6 +30,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsOwnerOrPostOrReadOnly,)
 
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        if pk == 'current' and self.request.user.is_authenticated:
+            return self.request.user
+        return super(UserViewSet, self).get_object()
+
 
 class RoomViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
