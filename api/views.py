@@ -27,6 +27,23 @@ class IsOwnerOrPostOrReadOnly(IsOwnerOrReadOnly):
         return super(IsOwnerOrPostOrReadOnly, self).has_permission(request, view)
 
 
+class IsCreatorOrOwnerOrReadOnly(IsOwnerOrReadOnly):
+    def has_object_permission(self, request, view, obj):
+        is_owner = super(IsCreatorOrOwnerOrReadOnly, self).has_object_permission(request, view, obj)
+        authenticated = request.user.is_authenticated
+        is_creator = authenticated and (obj.room.created_by == request.user)
+        return is_owner or is_creator
+
+
+class IsMemberAndOwnerOrReadOnly(IsOwnerOrReadOnly): # TODO make this work for POST too
+    def has_object_permission(self, request, view, obj):
+        is_owner = super(IsMemberAndOwnerOrReadOnly, self).has_object_permission(request, view, obj)
+        authenticated = request.user.is_authenticated
+        is_member = authenticated and (models.Membership.objects.filter(user= request.user, room= obj.room).exists())
+        is_safe = request.method in permissions.SAFE_METHODS
+        return is_safe or (is_owner and is_member)
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = models.UserProxy.objects.all()
     serializer_class = serializers.UserSerializer
@@ -71,7 +88,7 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     queryset = models.Message.objects.all()
     serializer_class = serializers.MessageSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsMemberAndOwnerOrReadOnly,)
 
 
 class MembershipViewSet(viewsets.ModelViewSet):
@@ -80,7 +97,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
 
     queryset = models.Membership.objects.all()
     serializer_class = serializers.MembershipSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsCreatorOrOwnerOrReadOnly,)
 
 
 class LikeViewSet(viewsets.ModelViewSet):
