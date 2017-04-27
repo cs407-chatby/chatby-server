@@ -4,6 +4,8 @@ from api import models
 from rest_framework import viewsets, permissions, filters
 from api import serializers
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count
+
 
 from decimal import Decimal
 
@@ -74,9 +76,17 @@ class RoomViewSet(viewsets.ModelViewSet):
         latitude = self.__as_float_or_none(self.request.query_params.get('my_lat', None))
         longitude = self.__as_float_or_none(self.request.query_params.get('my_lon', None))
         if latitude is not None and longitude is not None:
-            return objects.with_distance(latitude, longitude).filter(distance__lt=F('radius')).all()
+            obj= objects.with_distance(latitude, longitude).filter(distance__lt=F('radius')).all()
         else:
-            return objects.all()
+            obj= objects.all()
+        if 'sort' in self.request.GET:
+            sort= self.request.GET['sort']
+            if sort == 'True' or 'true' :
+                return obj.annotate(Count('likeroom')).order_by('-likeroom__count')
+            else :
+                return obj
+        else:
+            return obj
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -106,4 +116,12 @@ class LikeViewSet(viewsets.ModelViewSet):
 
     queryset = models.Like.objects.all()
     serializer_class = serializers.LikeSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+class LikeRoomViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('user', 'room')
+
+    queryset = models.LikeRoom.objects.all()
+    serializer_class = serializers.LikeRoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)

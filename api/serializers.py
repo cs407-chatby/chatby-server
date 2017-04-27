@@ -75,3 +75,11 @@ class LikeSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
         }
+
+class LikeRoomSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.LikeRoom
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
+        }

@@ -67,3 +67,13 @@ class Like(models.Model):
 
     def __str__(self):
         return "{} liked {}".format(self.user, self.message)
+
+class LikeRoom(models.Model):
+    user = models.ForeignKey(UserProxy, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+
+    def get_owner(self):
+        return self.user
+
+    def __str__(self):
+        return "{} liked {}".format(self.user, self.room)

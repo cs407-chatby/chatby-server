@@ -10,6 +10,7 @@ router.register(r'rooms', views.RoomViewSet, base_name='room')
 router.register(r'messages', views.MessageViewSet)
 router.register(r'memberships', views.MembershipViewSet)
 router.register(r'likes', views.LikeViewSet)
+router.register(r'roomlikes', views.LikeRoomViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
