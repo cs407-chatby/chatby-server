@@ -68,6 +68,7 @@ class Like(models.Model):
     def __str__(self):
         return "{} liked {}".format(self.user, self.message)
 
+
 class LikeRoom(models.Model):
     user = models.ForeignKey(UserProxy, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -77,3 +78,17 @@ class LikeRoom(models.Model):
 
     def __str__(self):
         return "{} liked {}".format(self.user, self.room)
+
+
+class Device(models.Model):
+    user = models.ForeignKey(UserProxy, on_delete=models.CASCADE)
+    device = models.CharField(max_length=2048)
+
+    class Meta:
+        unique_together = ['user', 'device']
+
+    def get_owner(self):
+        return self.user
+
+    def __str__(self):
+        return "{}'s device".format(self.user)

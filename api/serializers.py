@@ -76,9 +76,19 @@ class LikeSerializer(serializers.HyperlinkedModelSerializer):
             'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
         }
 
+
 class LikeRoomSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.LikeRoom
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},
+        }
+
+
+class DeviceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Device
         fields = '__all__'
         extra_kwargs = {
             'user': {'read_only': True, 'default': serializers.CurrentUserDefault()},

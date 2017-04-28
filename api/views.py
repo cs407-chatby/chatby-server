@@ -118,10 +118,20 @@ class LikeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LikeSerializer
     permission_classes = (IsOwnerOrReadOnly,)
 
+
 class LikeRoomViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user', 'room')
 
     queryset = models.LikeRoom.objects.all()
     serializer_class = serializers.LikeRoomSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+
+class DeviceViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('user', 'device')
+
+    queryset = models.Device.objects.all()
+    serializer_class = serializers.DeviceSerializer
     permission_classes = (IsOwnerOrReadOnly,)
