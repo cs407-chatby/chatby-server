@@ -56,18 +56,19 @@ push_service = FCMNotification(api_key=fcm_api_key) if fcm_api_key != '' else No
 @receiver(models.signals.post_save, sender=Message)
 def execute_after_save(sender, instance: Message, created, *args, **kwargs):
     if push_service is not None:
-        for device in Device.objects.filter(user=instance.created_by).all():
-            push_service.notify_single_device(
-                registration_id=device.device,
-                message_title=instance.room.name,
-                message_body=instance.content,
-                data_message={
-                    'Id': instance.room.id,
-                    'Title': instance.room.name,
-                    'Message': instance.content,
-                    'Sender': instance.created_by.username
-                }
-            )
+        for membership in Membership.objects.filter(room=instance.room).all():
+            for device in Device.objects.filter(user=membership.user).all():
+                push_service.notify_single_device(
+                    registration_id=device.device,
+                    message_title=instance.room.name,
+                    message_body=instance.content,
+                    data_message={
+                        'Id': instance.room.id,
+                        'Title': instance.room.name,
+                        'Message': instance.content,
+                        'Sender': instance.created_by.username
+                    }
+                )
 
 
 class Membership(models.Model):
