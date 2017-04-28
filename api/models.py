@@ -5,9 +5,6 @@ from django.conf import settings
 from pyfcm import FCMNotification
 from .distance_manager import WithDistanceManager
 
-fcm_api_key = getattr(settings, 'FCM_API_KEY', '')
-push_service = FCMNotification(api_key=fcm_api_key)
-
 
 class UserProxy(User):
     class Meta:
@@ -52,9 +49,13 @@ class Message(models.Model):
         return "{}: {}".format(self.created_by.username, self.content)
 
 
+fcm_api_key = getattr(settings, 'FCM_API_KEY', '')
+push_service = FCMNotification(api_key=fcm_api_key) if fcm_api_key != '' else None
+
+
 @receiver(models.signals.post_save, sender=Message)
 def execute_after_save(sender, instance: Message, created, *args, **kwargs):
-    if fcm_api_key != '':
+    if push_service is not None:
         for device in Device.objects.filter(user=instance.created_by).all():
             push_service.notify_single_device(
                 registration_id=device.device,
