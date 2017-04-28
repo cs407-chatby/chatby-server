@@ -1,6 +1,12 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
+from django.conf import settings
+from pyfcm import FCMNotification
 from .distance_manager import WithDistanceManager
+
+fcm_api_key = getattr(settings, 'FCM_API_KEY', '')
+push_service = FCMNotification(api_key=fcm_api_key)
 
 
 class UserProxy(User):
@@ -44,6 +50,23 @@ class Message(models.Model):
 
     def __str__(self):
         return "{}: {}".format(self.created_by.username, self.content)
+
+
+@receiver(models.signals.post_save, sender=Message)
+def execute_after_save(sender, instance: Message, created, *args, **kwargs):
+    if fcm_api_key != '':
+        for device in Device.objects.filter(user=instance.created_by).all():
+            push_service.notify_single_device(
+                registration_id=device.device,
+                message_title=instance.room.name,
+                message_body=instance.content,
+                data_message={
+                    'Id': instance.room.id,
+                    'Title': instance.room.name,
+                    'Message': instance.content,
+                    'Sender': instance.created_by.username
+                }
+            )
 
 
 class Membership(models.Model):
